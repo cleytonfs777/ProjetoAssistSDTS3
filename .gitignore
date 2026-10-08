@@ -1,0 +1,67 @@
+# ==========================================
+# SEGURANÇA E CREDENCIAIS (CRÍTICO)
+# ==========================================
+# Arquivo com senhas, tokens e credenciais locais do SEI
+.env
+.env.*
+!.env.example
+
+# Estados de autenticação / cookies salvos do Playwright (se utilizados)
+auth.json
+storage_state.json
+*.session
+
+# ==========================================
+# AMBIENTES VIRTUAIS PYTHON
+# ==========================================
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ==========================================
+# BYTECODE E CACHES PYTHON
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ==========================================
+# PLAYWRIGHT & ARQUIVOS GERADOS / DOWNLOADS
+# ==========================================
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+downloads/
+temp/
+*.pdf
+*.zip
+
+# ==========================================
+# LOGS
+# ==========================================
+*.log
+logs/
+
+# ==========================================
+# ARQUIVOS DE CONFIGURAÇÃO DE IDES
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==========================================
+# SISTEMA OPERACIONAL
+# ==========================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
