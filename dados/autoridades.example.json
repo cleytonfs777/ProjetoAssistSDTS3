@@ -1,0 +1,16 @@
+{
+  "autoridades": [
+    {
+      "nome": "Fulano da Silva",
+      "destinatario": "Comandante do 2º BBM",
+      "sexo": "M",
+      "PG": "Tenente-Coronel"
+    },
+    {
+      "nome": "Beltrana Souza",
+      "destinatario": "Chefe de Seção",
+      "sexo": "F",
+      "PG": "Coronel"
+    }
+  ]
+}

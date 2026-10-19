@@ -3,3 +3,6 @@ uvicorn[standard]>=0.30
 playwright>=1.47
 pydantic>=2.7
 pydantic-settings>=2.3
+pypdf>=5.0
+openai>=1.40
+pytest>=8.0

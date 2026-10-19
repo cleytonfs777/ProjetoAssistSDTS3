@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ofício de Resposta · SEI CBMMG</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo">SEI</div>
+      <div>
+        <h1>Ofício de Resposta</h1>
+        <p>Leitura do processo, redação com IA, despacho e atribuição</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="ia-status" id="iaStatus"></span>
+      <span class="api-status" id="apiStatus"><span class="dot"></span>verificando API…</span>
+      <a class="link-docs" href="/docs" target="_blank">API /docs</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <form id="form" class="col-form" autocomplete="off">
+      <!-- 1. Processo -->
+      <section class="card">
+        <div class="card-head"><span class="step">1</span><div><h2>Processo</h2><p>Todos os documentos do processo serão lidos e enviados à IA.</p></div></div>
+        <div class="grid">
+          <label class="field">
+            <span>Número do processo SEI</span>
+            <input id="processo" required placeholder="1400.01.0008514/2026-81">
+          </label>
+          <label class="field">
+            <span>Tipo de documento</span>
+            <select id="tipoDocumento">
+              <option value="Ofício" selected>Ofício</option>
+              <option value="Despacho">Despacho</option>
+              <option value="Parecer Técnico">Parecer Técnico</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Documento respondido <em>(referência)</em></span>
+            <input id="referencia" placeholder="Ofício 388 (126102548)">
+          </label>
+        </div>
+      </section>
+
+      <!-- 2. Conteúdo -->
+      <section class="card">
+        <div class="card-head"><span class="step">2</span><div><h2>Conteúdo do documento</h2><p>Assunto, destinatário e orientações para a redação.</p></div></div>
+        <div class="grid">
+          <label class="field full">
+            <span>Assunto <em>(preenchido pela análise ou à mão)</em></span>
+            <input id="assunto" maxlength="200" placeholder="Resposta quanto a esclarecimentos adicionais sobre…">
+          </label>
+          <label class="field full">
+            <span>Destinatário <em>(vocativo)</em></span>
+            <input id="destinatario" placeholder="Senhor Ten Cel BM, Resp p/ pelo 5ºCOB">
+            <small id="avisoDestinatario" class="aviso-campo hidden">Destinatário não encontrado no cadastro de autoridades.</small>
+          </label>
+          <label class="field full">
+            <span>Instruções para a IA <em>(opcional)</em></span>
+            <textarea id="complementar" rows="3" placeholder="Ex.: informar que o pedido é viável a partir de março; citar a Resolução nº 837/19; tom mais formal…"></textarea>
+          </label>
+        </div>
+      </section>
+
+      <!-- 3. Assinatura -->
+      <section class="card">
+        <div class="card-head"><span class="step">3</span><div><h2>Assinatura</h2><p>Signatário do documento (cadastro <code>dadosmil.json</code>).</p></div></div>
+        <div class="grid">
+          <label class="field">
+            <span>Signatário</span>
+            <select id="signatario" required></select>
+          </label>
+          <div class="signer-card" id="signerCard"></div>
+        </div>
+      </section>
+
+      <!-- 4. Despacho e atribuição -->
+      <section class="card">
+        <div class="card-head"><span class="step">4</span><div><h2>Despacho e atribuição</h2><p>Marcador com a anotação de despacho e militar que receberá o processo.</p></div></div>
+        <div class="grid">
+          <label class="field">
+            <span>Atribuir para</span>
+            <select id="atribuir" required></select>
+          </label>
+          <label class="field">
+            <span>Marcador</span>
+            <select id="etiqueta" required></select>
+          </label>
+          <div class="field full">
+            <div class="despacho-head">
+              <span>Mensagem do despacho <em>(anotação do marcador)</em></span>
+              <button type="button" class="btn-helper" id="btnGerarDespacho">✨ Gerar Despacho</button>
+            </div>
+
+            <!-- Gerador de despacho (anotação do marcador; documento citado = o criado no fluxo) -->
+            <div id="geradorDespacho" class="gerador hidden">
+              <h4>📋 Gerador de Despacho</h4>
+              <p class="gerador-hint">Cita automaticamente o documento criado nesta execução (<mark>o [Documento a ser criado]</mark>), usando Atribuir para e Assunto.</p>
+              <label class="field">
+                <span>Complemento <em>(opcional)</em></span>
+                <input id="despachoComplemento" maxlength="120" placeholder="Ex.: Urgente, prazo até 15/10">
+              </label>
+              <div id="alertaDespacho" class="alerta hidden"></div>
+              <button type="button" class="btn secondary small" id="btnGerarTexto">✨ Gerar Texto</button>
+            </div>
+
+            <div class="despacho-box">
+              <textarea id="despachoTexto" rows="4" placeholder="Clique em ✨ Gerar Despacho ou digite a mensagem…"></textarea>
+              <div class="despacho-foot">
+                <small><code>[Documento a ser criado]</code> vira o nome real após a criação</small>
+                <span class="counter" id="contador">0/250</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Etapas -->
+      <section class="card">
+        <div class="card-head"><span class="step">5</span><div><h2>Etapas no SEI</h2><p>Desmarque o que não deve ser gravado.</p></div></div>
+        <div class="toggles">
+          <label class="toggle"><input type="checkbox" id="criarOficio" checked><span class="track"></span><span id="labelCriarDoc">Criar o ofício</span></label>
+          <label class="toggle"><input type="checkbox" id="adicionarMarcador" checked><span class="track"></span>Marcador com despacho</label>
+          <label class="toggle"><input type="checkbox" id="atribuirProc" checked><span class="track"></span>Atribuir o processo</label>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button type="button" class="btn ghost" id="btnLimpar">Limpar</button>
+        <button type="button" class="btn secondary" id="btnAnalisar" title="Lê o processo e sugere assunto, destinatário e 3 abordagens (nada é gravado)">Analisar demanda</button>
+        <button type="button" class="btn secondary" id="btnSimular" title="Lê o processo e gera os textos, sem gravar no SEI">Pré-visualizar (sem gravar)</button>
+        <button type="submit" class="btn primary" id="btnExecutar">Gerar e enviar ao SEI</button>
+      </div>
+    </form>
+
+    <aside class="col-side">
+      <section class="card sticky">
+        <div class="side-head">
+          <h2>Execução</h2>
+          <span class="badge" id="badge">aguardando</span>
+        </div>
+        <div class="progress"><div class="progress-fill" id="barra"></div></div>
+        <ol class="timeline" id="timeline">
+          <li data-etapa="login">Login no SEI</li>
+          <li data-etapa="processo">Abrir processo</li>
+          <li data-etapa="leitura">Ler documentos</li>
+          <li data-etapa="ia">Redação com IA</li>
+          <li data-etapa="oficio" id="liCriarDoc">Criar ofício</li>
+          <li data-etapa="despacho">Marcador e despacho</li>
+          <li data-etapa="atribuicao">Atribuição</li>
+        </ol>
+        <div class="log" id="log"><p class="muted">Os eventos da automação aparecem aqui.</p></div>
+      </section>
+    </aside>
+  </main>
+
+  <section class="analise-painel hidden" id="analisePainel">
+    <div class="card">
+      <div class="side-head">
+        <h2>Análise da demanda</h2>
+        <span class="pill" id="analiseId"></span>
+      </div>
+      <p class="muted" id="analiseSignatario"></p>
+      <div class="grid">
+        <label class="field full">
+          <span>Assunto sugerido <em>(editável)</em></span>
+          <input id="analiseAssunto" maxlength="200">
+        </label>
+        <label class="field full">
+          <span>Destinatário sugerido <em>(editável)</em></span>
+          <input id="analiseDestinatario" placeholder="Vocativo do destinatário">
+          <small id="analiseAvisoDest" class="aviso-campo hidden">não encontrado no cadastro</small>
+        </label>
+      </div>
+      <h3 class="opcoes-titulo">Escolha uma abordagem</h3>
+      <div class="opcoes-grid" id="analiseOpcoes"></div>
+      <label class="field full">
+        <span>Informações adicionais / ajustes <em>(opcional)</em></span>
+        <textarea id="analiseInfoExtra" rows="3" placeholder="Ajustes para a redação da abordagem escolhida…"></textarea>
+      </label>
+      <div class="actions">
+        <button type="button" class="btn primary" id="btnGerarDoc" disabled>Gerar documento</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="resultado hidden" id="resultado">
+    <div class="card">
+      <div class="side-head">
+        <h2 id="resTitulo">Resultado</h2>
+        <button class="btn ghost small" id="btnCopiar" type="button">Copiar texto do documento</button>
+      </div>
+      <div class="res-grid">
+        <div>
+          <h3 id="resDocTitulo">Documento</h3>
+          <div class="papel" id="resOficio"></div>
+        </div>
+        <div class="res-info">
+          <h3>Despacho</h3>
+          <p class="despacho-final" id="resDespacho"></p>
+          <h3>Atribuído a</h3>
+          <p id="resAtribuido">—</p>
+          <h3>Documentos lidos <span id="resQtd" class="pill"></span></h3>
+          <ul id="resDocs" class="docs"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="confirmar">
+    <h2>Gravar no SEI?</h2>
+    <p id="confirmarTexto"></p>
+    <div class="actions">
+      <button class="btn ghost" value="nao" formmethod="dialog" id="cancelar">Cancelar</button>
+      <button class="btn primary" id="confirmarOk">Sim, executar</button>
+    </div>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+REGRAS INVIOLÁVEIS DESTA EVOLUÇÃO
+- O fluxo atual de /oficios/responder funciona perfeitamente. Trata-se de EVOLUÇÃO, não de refatoração.
+- Retrocompatibilidade: se os novos campos não forem enviados, o comportamento e a saída devem ficar idênticos aos de hoje (ofício, despacho, marcador, atribuição, NDJSON).
+- NÃO alterar: app/browser.py, app/pages/* (seletores/iframes), app/extratores.py, leitura de documentos, login, pool de contextos, formato dos eventos NDJSON existentes, limite de 250 caracteres do despacho, modo "simular".
+- Não renomear funções/campos existentes. Só adicionar.
+- Sem eval; manter ast.literal_eval/json no fluxo atual. Sem logs de dados sensíveis.
+- Antes de editar: liste os arquivos que vai tocar e o que muda em cada um. Faça o menor diff possível.

@@ -6,6 +6,15 @@
 .env.*
 !.env.example
 
+# ddos pessoais (CPFs de militares e amostras de documentos do SEI)
+dados/dadosmil.json
+dados/autoridades.json
+documento_html
+documento_pdf
+documento_imagem
+gravacao_async.py
+teste_play.py
+
 # Estados de autenticação / cookies salvos do Playwright (se utilizados)
 auth.json
 storage_state.json
